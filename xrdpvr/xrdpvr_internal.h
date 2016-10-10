@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
 
 #if LIBAVCODEC_VERSION_MAJOR == 52 && LIBAVCODEC_VERSION_MINOR == 20
 #define DISTRO_DEBIAN6
@@ -45,10 +46,24 @@
 #warning unsupported distro
 #endif
 
-#ifdef DISTRO_UBUNTU1204
-#define CODEC_TYPE_VIDEO AVMEDIA_TYPE_VIDEO
-#define CODEC_TYPE_AUDIO AVMEDIA_TYPE_AUDIO
-#define PKT_FLAG_KEY AV_PKT_FLAG_KEY
+#if !defined(AVMEDIA_TYPE_VIDEO)
+#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
+#endif
+
+#if !defined(AVMEDIA_TYPE_AUDIO)
+#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
+#endif
+
+#if !defined(AV_CODEC_ID_AAC)
+#define AV_CODEC_ID_AAC CODEC_ID_AAC
+#endif
+
+#if !defined(AV_CODEC_ID_H264)
+#define AV_CODEC_ID_H264 CODEC_ID_H264
+#endif
+
+#if !defined(AV_PKT_FLAG_KEY)
+#define AV_PKT_FLAG_KEY PKT_FLAG_KEY
 #endif
 
 #define MAX_BUFSIZE (1024 * 1024 * 8)

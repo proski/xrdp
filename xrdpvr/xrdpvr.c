@@ -216,18 +216,18 @@ xrdpvr_play_media(void *channel, int stream_id, char *filename)
     for (i = 0; i < g_psi.p_format_ctx->nb_streams; i++)
     {
         if (g_psi.p_format_ctx->streams[i]->codec->codec_type ==
-                                                     CODEC_TYPE_VIDEO &&
+                                                     AVMEDIA_TYPE_VIDEO &&
             g_psi.p_format_ctx->streams[i]->codec->codec_id ==
-                                                     CODEC_ID_H264 &&
+                                                     AV_CODEC_ID_H264 &&
             g_video_index < 0)
         {
             g_video_index = i;
         }
 
         if (g_psi.p_format_ctx->streams[i]->codec->codec_type ==
-                                                     CODEC_TYPE_AUDIO &&
+                                                     AVMEDIA_TYPE_AUDIO &&
             g_psi.p_format_ctx->streams[i]->codec->codec_id ==
-                                                     CODEC_ID_AAC &&
+                                                     AV_CODEC_ID_AAC &&
             g_audio_index < 0)
         {
             g_audio_index = i;
@@ -379,7 +379,7 @@ xrdpvr_get_frame(void **av_pkt_ret, int *is_video_frame, int *delay_in_us)
             error = av_bitstream_filter_filter(bsfc, g_psi.p_video_codec_ctx, 0,
                                                &new_pkt.data, &new_pkt.size,
                                                av_pkt->data, av_pkt->size,
-                                               av_pkt->flags & PKT_FLAG_KEY);
+                                               av_pkt->flags & AV_PKT_FLAG_KEY);
             if (error > 0)
             {
                 av_free_packet(av_pkt);
@@ -495,7 +495,7 @@ xrdpvr_play_frame(void *channel, int stream_id, int *videoTimeout,
             error = av_bitstream_filter_filter(bsfc, g_psi.p_video_codec_ctx, 0,
                                                &new_pkt.data, &new_pkt.size,
                                                av_pkt.data, av_pkt.size,
-                                               av_pkt.flags & PKT_FLAG_KEY);
+                                               av_pkt.flags & AV_PKT_FLAG_KEY);
             if (error > 0)
             {
                 av_free_packet(&av_pkt);
