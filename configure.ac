@@ -246,6 +246,10 @@ fi
 
 AS_IF( [test "x$enable_pixman" = "xyes"] , [PKG_CHECK_MODULES(PIXMAN, pixman-1 >= 0.1.0)] )
 
+if test "x$enable_xrdpvr" = "xyes"; then
+  PKG_CHECK_MODULES(LIBAVCODEC, libavcodec)
+fi
+
 # checking for TurboJPEG
 if test "x$enable_tjpeg" = "xyes"
 then
