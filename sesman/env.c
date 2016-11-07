@@ -94,126 +94,139 @@ env_set_user(const char *username, char **passwd_file, int display,
     int error;
     int pw_uid;
     int pw_gid;
-    int uid;
     int index;
     int len;
-    char *name;
-    char *value;
-    char *pw_shell;
-    char *pw_dir;
+    const char *name;
+    const char *value;
     char text[256];
-
-    pw_shell = 0;
-    pw_dir = 0;
+    char *pw_shell = NULL;
+    char *pw_dir = NULL;
+    int old_uid = g_getuid();
 
     error = g_getuser_info(username, &pw_gid, &pw_uid, &pw_shell, &pw_dir, 0);
 
-    if (error == 0)
+    if (error != 0)
+    {
+        log_message(LOG_LEVEL_ERROR,
+                    "error getting user info for user %s: %s",
+                    username, g_get_strerror());
+        goto done;
+    }
+
+
+    if (pw_uid != old_uid)
     {
         g_rm_temp_dir();
-        error = g_setgid(pw_gid);
 
-        if (error == 0)
+        error = g_setgid(pw_gid);
+        if (error != 0)
         {
-            error = g_initgroups(username, pw_gid);
+            log_message(LOG_LEVEL_ERROR, "cannot set group id to %d: %s",
+                        pw_gid, g_get_strerror());
+            goto done;
         }
 
-        if (error == 0)
+        error = g_initgroups(username, pw_gid);
+        if (error != 0)
         {
-            uid = pw_uid;
-            error = g_setuid(uid);
+            log_message(LOG_LEVEL_ERROR, "cannot set supplementary groups: %s",
+                        g_get_strerror());
+            goto done;
+        }
+
+        error = g_setuid(pw_uid);
+        if (error != 0 && pw_uid != old_uid)
+        {
+            log_message(LOG_LEVEL_ERROR, "cannot change user id to %d: %s",
+                        pw_uid, g_get_strerror());
+            goto done;
         }
 
         g_mk_temp_dir(0);
+    }
 
-        if (error == 0)
+    g_clearenv();
+    g_setenv("SHELL", pw_shell, 1);
+    g_setenv("PATH", "/sbin:/bin:/usr/bin:/usr/local/bin", 1);
+    g_setenv("USER", username, 1);
+    g_sprintf(text, "%d", pw_uid);
+    g_setenv("UID", text, 1);
+    g_setenv("HOME", pw_dir, 1);
+    g_set_current_dir(pw_dir);
+    g_sprintf(text, ":%d.0", display);
+    g_setenv("DISPLAY", text, 1);
+    g_setenv("XRDP_SESSION", "1", 1);
+
+    if ((env_names != 0) && (env_values != 0) &&
+            (env_names->count == env_values->count))
+    {
+        for (index = 0; index < env_names->count; index++)
         {
-            g_clearenv();
-            g_setenv("SHELL", pw_shell, 1);
-            g_setenv("PATH", "/sbin:/bin:/usr/bin:/usr/local/bin", 1);
-            g_setenv("USER", username, 1);
-            g_sprintf(text, "%d", uid);
-            g_setenv("UID", text, 1);
-            g_setenv("HOME", pw_dir, 1);
-            g_set_current_dir(pw_dir);
-            g_sprintf(text, ":%d.0", display);
-            g_setenv("DISPLAY", text, 1);
-            g_setenv("XRDP_SESSION", "1", 1);
-            if ((env_names != 0) && (env_values != 0) &&
-                (env_names->count == env_values->count))
-            {
-                for (index = 0; index < env_names->count; index++)
-                {
-                    name = (char *) list_get_item(env_names, index),
-                    value = (char *) list_get_item(env_values, index),
-                    g_setenv(name, value, 1);
-                }
-            }
-
-            if (passwd_file != 0)
-            {
-                if (0 == g_cfg->auth_file_path)
-                {
-                    /* if no auth_file_path is set, then we go for
-                     $HOME/.vnc/sesman_username_passwd:DISPLAY */
-                    if (!g_directory_exist(".vnc"))
-                    {
-                        if (g_mkdir(".vnc") < 0)
-                        {
-                            log_message(LOG_LEVEL_ERROR,
-                                        "Error creating .vnc directory: %s",
-                                        g_get_strerror());
-                        }
-                    }
-
-                    len = g_snprintf(NULL, 0, "%s/.vnc/sesman_%s_passwd:%d",
-                                     pw_dir, username, display);
-
-                    *passwd_file = (char *) g_malloc(len + 1, 1);
-                    if (*passwd_file != NULL)
-                    {
-                        /* Try legacy name first, remove if found */
-                        g_sprintf(*passwd_file, "%s/.vnc/sesman_%s_passwd",
-                                  pw_dir, username);
-                        if (g_file_exist(*passwd_file))
-                        {
-                            log_message(LOG_LEVEL_WARNING, "Removing insecure "
-                                        "password file %s", *passwd_file);
-                            g_file_delete(*passwd_file);
-                        }
-
-                        g_sprintf(*passwd_file, "%s/.vnc/sesman_%s_passwd:%d",
-                                  pw_dir, username, display);
-                    }
-                }
-                else
-                {
-                    /* we use auth_file_path as requested */
-                    len = g_snprintf(NULL, 0, g_cfg->auth_file_path, username);
-
-                    *passwd_file = (char *) g_malloc(len + 1, 1);
-                    if (*passwd_file != NULL)
-                    {
-                        g_sprintf(*passwd_file, g_cfg->auth_file_path, username);
-                    }
-                }
-
-                if (*passwd_file != NULL)
-                {
-                    LOG_DBG("pass file: %s", *passwd_file);
-                }
-            }
-
-            g_free(pw_dir);
-            g_free(pw_shell);
+            name = (const char *) list_get_item(env_names, index),
+            value = (const char *) list_get_item(env_values, index),
+            g_setenv(name, value, 1);
         }
     }
-    else
+
+    if (passwd_file != 0)
     {
-        log_message(LOG_LEVEL_ERROR,
-                    "error getting user info for user %s",
-                    username);
+        if (0 == g_cfg->auth_file_path)
+        {
+            /* if no auth_file_path is set, then we go for
+             $HOME/.vnc/sesman_username_passwd */
+            if (!g_directory_exist(".vnc"))
+            {
+                if (g_mkdir(".vnc") < 0)
+                {
+                    log_message(LOG_LEVEL_ERROR,
+                                "Error creating .vnc directory: %s",
+                                g_get_strerror());
+                }
+            }
+
+            len = g_snprintf(NULL, 0, "%s/.vnc/sesman_%s_passwd", pw_dir, username);
+
+            *passwd_file = (char *) g_malloc(len + 1, 1);
+
+            if (*passwd_file != NULL)
+            {
+                /* Try legacy name first, remove if found */
+                g_sprintf(*passwd_file, "%s/.vnc/sesman_%s_passwd",
+                          pw_dir, username);
+                if (g_file_exist(*passwd_file))
+                {
+                    log_message(LOG_LEVEL_WARNING, "Removing insecure "
+                                "password file %s", *passwd_file);
+                    g_file_delete(*passwd_file);
+                }
+
+                g_sprintf(*passwd_file, "%s/.vnc/sesman_%s_passwd:%d",
+                          pw_dir, username, display);
+
+            }
+        }
+        else
+        {
+            /* we use auth_file_path as requested */
+            len = g_snprintf(NULL, 0, g_cfg->auth_file_path, username);
+
+            *passwd_file = (char *) g_malloc(len + 1, 1);
+
+            if (*passwd_file != NULL)
+            {
+                g_sprintf(*passwd_file, g_cfg->auth_file_path, username);
+            }
+        }
+
+        if (*passwd_file != NULL)
+        {
+            LOG_DBG("pass file: %s", *passwd_file);
+        }
     }
+
+done:
+    g_free(pw_dir);
+    g_free(pw_shell);
 
     return error;
 }
