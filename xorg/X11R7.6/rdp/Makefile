@@ -40,15 +40,21 @@ LIBS = \
 	$(XSRCBASE)/xkb/.libs/libxkb.a \
 	$(XSRCBASE)/Xext/.libs/libXext.a \
 	$(XSRCBASE)/Xi/.libs/libXi.a \
-	$(XSRCBASE)/glx/.libs/libglx.a \
 	$(XSRCBASE)/xfixes/.libs/libxfixes.a \
 	$(XSRCBASE)/damageext/.libs/libdamageext.a \
 	$(XSRCBASE)/miext/damage/.libs/libdamage.a
 
-LLIBS = -Wl,-rpath=$(LIBBASE) -lfreetype -lz -lm -lXfont -lXau \
-	-lXdmcp -lpixman-1 -lrt -ldl -lcrypto -lGL -lXdamage
+LLIBS = -Wl,-rpath,$(LIBBASE) -lfreetype -lz -lm -lXfont -lXau \
+	-lXdmcp -lpixman-1 -ldl -lcrypto -lGL -lXdamage
 
 CFLAGS = -g -O2 -Wall -fno-strength-reduce \
+	-I$(XSRCBASE)/include \
+	-I$(XSRCBASE)/Xext \
+	-I$(XSRCBASE)/fb \
+	-I$(XSRCBASE)/hw/xfree86/common \
+	-I$(XSRCBASE)/mi \
+	-I$(XSRCBASE)/randr \
+	-I$(XSRCBASE)/render \
 	-I$(INCBASE) \
 	-I$(INCBASE)/X11 \
 	-I$(INCBASE)/X11/fonts \
@@ -64,7 +70,7 @@ CFLAGS = -g -O2 -Wall -fno-strength-reduce \
 	-DPART_NET -DDDXTIME -D_HAVE_XALLOC_DECLS \
 	-DDAMAGE \
 	-DXFIXES \
-	-DSMART_SCHEDULE -DSERVER_LOCK -DGLXEXT -DSHAPE -DRENDER -DRANDR \
+	-DSMART_SCHEDULE -DSERVER_LOCK -DSHAPE -DRENDER -DRANDR \
 	-DBIGREQS -D_POSIX_SOURCE -D_BSD_SOURCE -DSCREENSAVER \
 	-DXCMISC -DXTEST -DXTRAP -DXV -DXSYNC -DMITMISC -DPANORAMIX \
 	-DDPMSExtension -DXvExtension -DXvMCExtension -DXResExtension \

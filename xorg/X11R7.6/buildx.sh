@@ -222,10 +222,11 @@ fi
 
 echo "installation directory: $PREFIX_DIR"
 
-export PKG_CONFIG_PATH=$PREFIX_DIR/lib/pkgconfig:$PREFIX_DIR/share/pkgconfig
-export PATH=$PREFIX_DIR/bin:$PATH
-export LDFLAGS=-Wl,-rpath=$PREFIX_DIR/lib
+export PKG_CONFIG_PATH=$PREFIX_DIR/lib/pkgconfig:$PREFIX_DIR/share/pkgconfig:/usr/local/opt/openssl/lib/pkgconfig
+export PATH=$PREFIX_DIR/bin:$PATH:/usr/local/opt/gettext/bin
+export LDFLAGS=-Wl,-rpath,$PREFIX_DIR/lib
 export CFLAGS="-I$PREFIX_DIR/include -fPIC -O2"
+export PYTHONPATH=$PREFIX_DIR/lib/python2.7/site-packages
 
 # create a downloads dir
 if [ ! -d downloads ]; then

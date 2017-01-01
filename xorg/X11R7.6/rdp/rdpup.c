@@ -24,7 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "rdpglyph.h"
 #include "rdprandr.h"
 
-#include <signal.h>
+#include <sys/signal.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
