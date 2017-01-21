@@ -583,7 +583,6 @@ trans_write_copy_s(struct trans *self, struct stream *out_s)
         return 1;
     }
     out_data = out_s->data;
-    sent = 0;
     size = (int) (out_s->end - out_s->data);
     if (self->wait_s == 0)
     {

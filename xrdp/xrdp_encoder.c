@@ -413,7 +413,7 @@ process_enc_rfx(struct xrdp_encoder *self, XRDP_ENC_DATA *enc)
     /* signal completion for main thread */
     g_set_wait_obj(event_processed);
 
-    return 0;
+    return error;
 }
 #endif
 

@@ -334,8 +334,6 @@ xrdp_cache_add_bitmap(struct xrdp_cache *self, struct xrdp_bitmap *bitmap,
 
     e = (4 - (bitmap->width % 4)) & 3;
     found = 0;
-    cache_id = 0;
-    cache_entries = 0;
 
     /* client Bpp, bmp_size */
     Bpp = (bitmap->bpp + 7) / 8;

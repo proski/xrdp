@@ -87,7 +87,6 @@ libxrdp_get_pdu_bytes(const char *aheader)
     int rv;
     const tui8 *header;
 
-    rv = -1;
     header = (const tui8 *) aheader;
 
     if (header[0] == 0x03)
@@ -184,7 +183,6 @@ libxrdp_process_data(struct xrdp_session *session, struct stream *s)
         {
             if (session->is_term())
             {
-                term = 1;
                 break;
             }
         }

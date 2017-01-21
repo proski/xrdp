@@ -1803,7 +1803,6 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
             {
                 /* move to next tab stop */
                 shift = self->wm->keys[42] || self->wm->keys[54];
-                i = -1;
 
                 if (self->child_list != 0)
                 {

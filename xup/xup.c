@@ -180,7 +180,6 @@ lib_mod_connect(struct mod *mod)
         use_uds = 1;
     }
 
-    error = 0;
     mod->sck_closed = 0;
     i = 0;
 
@@ -1252,7 +1251,6 @@ lib_mod_process_orders(struct mod *mod, int type, struct stream *s)
     int rv;
 
     LLOGLN(10, ("lib_mod_process_orders: type %d", type));
-    rv = 0;
     switch (type)
     {
         case 1: /* server_begin_update */

@@ -241,7 +241,6 @@ WTSVirtualChannelWrite(void *hChannelHandle, const char *Buffer,
         return 0;    /* can't write now, ok to try again */
     }
 
-    rv = 0;
     memcpy(header, g_xrdpapi_magic, 12);
     header[3] = Length;
     if (mysend(wts->fd, header, 16) == 16)

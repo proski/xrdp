@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     enum SCP_CLIENT_STATES_E e;
     struct log_config log;
     int end;
-    int scnt;
+    int scnt = 0;
     int idx;
     int sel;
     int sock;

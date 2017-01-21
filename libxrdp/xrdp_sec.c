@@ -1530,7 +1530,6 @@ xrdp_sec_send_fastpath(struct xrdp_sec *self, struct stream *s)
     char save[8];
 
     LLOGLN(10, ("xrdp_sec_send_fastpath:"));
-    error = 0;
     s_pop_layer(s, sec_hdr);
     if (self->crypt_level == CRYPT_LEVEL_FIPS)
     {

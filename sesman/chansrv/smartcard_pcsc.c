@@ -1378,7 +1378,6 @@ scard_function_status_return(void *user_data,
     }
     g_free(pcscStatus);
     con = uds_client->con;
-    dwReaderLen = 0;
     dwState = 0;
     dwProtocol = 0;
     dwAtrLen = 0;
