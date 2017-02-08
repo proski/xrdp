@@ -73,18 +73,8 @@ typedef int bool_t;
 #endif
 
 /* check if we need to align data */
-#if !(defined(NEED_ALIGN) || defined(NO_NEED_ALIGN))
-#if defined(__sparc__) || defined(__alpha__) || defined(__hppa__) || \
-    defined(__AIX__) || defined(__PPC__) || defined(__mips__) || \
-    defined(__ia64__) || defined(__ppc__) || defined(__arm__)
+#if !defined(NO_NEED_ALIGN) && defined(HAVE_ALIGNED_ACCESS_REQUIRED)
 #define NEED_ALIGN
-#elif defined(__x86__) || defined(__x86_64__) || \
-      defined(__AMD64__) || defined(_M_IX86) || defined (_M_AMD64) || \
-      defined(__i386__) || defined(__aarch64__)
-#define NO_NEED_ALIGN
-#else
-#warning unknown arch
-#endif
 #endif
 
 /* defines for thread creation factory functions */
